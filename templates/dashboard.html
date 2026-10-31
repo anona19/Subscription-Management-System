@@ -1,0 +1,996 @@
+{% load static %}
+```html
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Brightloop Dashboard</title>
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: Arial, sans-serif;
+        }
+
+        body {
+            background: #f7f5f8;
+            color: #111827;
+        }
+
+        /* =========================
+           MAIN LAYOUT
+        ========================== */
+
+        .dashboard-container {
+            display: flex;
+            min-height: 100vh;
+        }
+
+        /* =========================
+           SIDEBAR
+        ========================== */
+
+        .sidebar {
+            width: 270px;
+            background: #111827;
+            color: white;
+            padding: 28px 16px;
+            position: fixed;
+            height: 100vh;
+            overflow-y: auto;
+            left: 0;
+            top: 0;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-size: 28px;
+            font-weight: bold;
+            margin-bottom: 40px;
+            padding-left: 15px;
+        }
+
+        .logo-icon {
+            color: #ff9d5c;
+        }
+
+        .sidebar-menu {
+            list-style: none;
+        }
+
+        .sidebar-menu li {
+            margin-bottom: 8px;
+        }
+
+        .sidebar-menu a {
+            display: block;
+            text-decoration: none;
+            color: #e5e7eb;
+            padding: 15px 18px;
+            border-radius: 9px;
+            font-size: 17px;
+            transition: 0.3s;
+            cursor: pointer;
+        }
+
+        .sidebar-menu a:hover {
+            background: #252f42;
+        }
+
+        .sidebar-menu a.active {
+            background: #5545e8;
+            color: white;
+        }
+
+        /* =========================
+           MAIN CONTENT
+        ========================== */
+
+        .main-content {
+            margin-left: 270px;
+            width: calc(100% - 270px);
+            padding: 35px 55px;
+            min-height: 100vh;
+        }
+
+        /* =========================
+           TOP BAR
+        ========================== */
+
+        .top-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 35px;
+        }
+
+        .page-title h1 {
+            font-size: 38px;
+            margin-bottom: 5px;
+        }
+
+        .page-title p {
+            color: #6b7280;
+            font-size: 17px;
+        }
+
+        /* =========================
+           USER MENU
+        ========================== */
+
+        .user-menu {
+            position: relative;
+        }
+
+        .profile-btn {
+            border: none;
+            background: transparent;
+            cursor: pointer;
+            font-size: 17px;
+            font-weight: 600;
+            padding: 12px 16px;
+            border-radius: 10px;
+            color: #111827;
+        }
+
+        .profile-btn:hover {
+            background: #eeeeee;
+        }
+
+        .profile-dropdown {
+            display: none;
+            position: absolute;
+            top: 55px;
+            right: 0;
+            width: 200px;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.15);
+            overflow: hidden;
+            z-index: 100;
+        }
+
+        .profile-dropdown.show {
+            display: block;
+        }
+
+        .profile-dropdown button,
+        .profile-dropdown a {
+            width: 100%;
+            display: block;
+            padding: 15px 18px;
+            border: none;
+            background: white;
+            color: #222;
+            text-decoration: none;
+            text-align: left;
+            cursor: pointer;
+            font-size: 15px;
+        }
+
+        .profile-dropdown button:hover,
+        .profile-dropdown a:hover {
+            background: #f3f4f6;
+        }
+
+        .profile-dropdown .logout-link {
+            color: #dc2626;
+        }
+
+        /* =========================
+           CARDS
+        ========================== */
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 22px;
+            margin-bottom: 30px;
+        }
+
+        .stat-card {
+            background: white;
+            border-radius: 18px;
+            padding: 28px;
+            box-shadow: 0 8px 25px rgba(0,0,0,0.07);
+        }
+
+        .stat-card h3 {
+            color: #6b7280;
+            font-size: 16px;
+            margin-bottom: 18px;
+        }
+
+        .stat-card .number {
+            font-size: 30px;
+            font-weight: bold;
+            color: #111827;
+        }
+
+        /* =========================
+           DASHBOARD CONTENT
+        ========================== */
+
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            gap: 25px;
+        }
+
+        .box {
+            background: white;
+            border-radius: 18px;
+            padding: 30px;
+            min-height: 345px;
+            box-shadow: 0 8px 25px rgba(0,0,0,0.07);
+        }
+
+        .box h2 {
+            margin-bottom: 25px;
+            font-size: 28px;
+        }
+
+        .revenue-stats {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 20px;
+        }
+
+        .small-card {
+            background: #fafafa;
+            padding: 25px;
+            border-radius: 14px;
+        }
+
+        .small-card h4 {
+            color: #6b7280;
+            margin-bottom: 15px;
+        }
+
+        .small-card p {
+            font-size: 25px;
+            font-weight: bold;
+        }
+
+        /* =========================
+           SECTIONS
+        ========================== */
+
+        .content-section {
+            display: none;
+        }
+
+        .content-section.active-section {
+            display: block;
+        }
+
+        .section-card {
+            background: white;
+            border-radius: 18px;
+            padding: 30px;
+            box-shadow: 0 8px 25px rgba(0,0,0,0.07);
+            min-height: 500px;
+        }
+
+        .section-card h2 {
+            font-size: 30px;
+            margin-bottom: 12px;
+        }
+
+        .section-card p {
+            color: #6b7280;
+            margin-bottom: 25px;
+        }
+
+        /* =========================
+           BUTTONS
+        ========================== */
+
+        .primary-btn {
+            background: #5545e8;
+            color: white;
+            border: none;
+            padding: 13px 20px;
+            border-radius: 8px;
+            font-size: 15px;
+            cursor: pointer;
+        }
+
+        .primary-btn:hover {
+            background: #4434d5;
+        }
+
+        .danger-btn {
+            background: #dc3545;
+            color: white;
+            border: none;
+            padding: 13px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+        }
+
+        /* =========================
+           PROFILE MODAL
+        ========================== */
+
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal.show-modal {
+            display: flex;
+        }
+
+        .modal-content {
+            background: white;
+            width: 400px;
+            border-radius: 18px;
+            padding: 35px;
+            position: relative;
+            text-align: center;
+            box-shadow: 0 20px 50px rgba(0,0,0,0.2);
+        }
+
+        .close-btn {
+            position: absolute;
+            right: 20px;
+            top: 15px;
+            font-size: 28px;
+            cursor: pointer;
+            color: #777;
+        }
+
+        .profile-avatar {
+            width: 90px;
+            height: 90px;
+            border-radius: 50%;
+            background: #5545e8;
+            color: white;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 38px;
+            margin: 10px auto 20px;
+        }
+
+        .profile-info {
+            text-align: left;
+            margin-top: 25px;
+        }
+
+        .profile-info p {
+            padding: 12px 0;
+            border-bottom: 1px solid #eee;
+            color: #444;
+        }
+
+        /* =========================
+           RESPONSIVE
+        ========================== */
+
+        @media (max-width: 1100px) {
+
+            .stats-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .dashboard-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .revenue-stats {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        @media (max-width: 768px) {
+
+            .sidebar {
+                width: 75px;
+                padding: 20px 8px;
+            }
+
+            .logo span {
+                display: none;
+            }
+
+            .sidebar-menu a {
+                font-size: 0;
+                text-align: center;
+                padding: 16px 5px;
+            }
+
+            .sidebar-menu a::first-letter {
+                font-size: 20px;
+            }
+
+            .main-content {
+                margin-left: 75px;
+                width: calc(100% - 75px);
+                padding: 25px;
+            }
+
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .page-title h1 {
+                font-size: 28px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+<div class="dashboard-container">
+
+    <!-- ================= SIDEBAR ================= -->
+
+    <aside class="sidebar">
+
+        <div class="logo">
+            <span class="logo-icon">⚡</span>
+            <span>Brightloop</span>
+        </div>
+
+        <ul class="sidebar-menu">
+
+            <li>
+                <a class="active menu-link" onclick="showSection('dashboard', this)">
+                    📊 Dashboard
+                </a>
+            </li>
+
+            <li>
+                <a class="menu-link" onclick="showSection('customers', this)">
+                    👥 Customers
+                </a>
+            </li>
+
+            <li>
+                <a class="menu-link" onclick="showSection('products', this)">
+                    📦 Products
+                </a>
+            </li>
+
+            <li>
+                <a class="menu-link" onclick="showSection('plans', this)">
+                    📋 Plans
+                </a>
+            </li>
+
+            <li>
+                <a class="menu-link" onclick="showSection('quotations', this)">
+                    📄 Quotations
+                </a>
+            </li>
+
+            <li>
+                <a class="menu-link" onclick="showSection('subscriptions', this)">
+                    🔄 Subscriptions
+                </a>
+            </li>
+
+            <li>
+                <a class="menu-link" onclick="showSection('invoices', this)">
+                    🧾 Invoices
+                </a>
+            </li>
+
+            <li>
+                <a class="menu-link" onclick="showSection('payments', this)">
+                    💳 Payments
+                </a>
+            </li>
+
+            <li>
+                <a class="menu-link" onclick="showSection('discounts', this)">
+                    🏷️ Discounts
+                </a>
+            </li>
+
+            <li>
+                <a class="menu-link" onclick="showSection('taxes', this)">
+                    %️⃣ Taxes
+                </a>
+            </li>
+
+            <li>
+                <a class="menu-link" onclick="showSection('reports', this)">
+                    📈 Reports
+                </a>
+            </li>
+
+            <li>
+                <a class="menu-link" onclick="showSection('settings', this)">
+                    ⚙️ Settings
+                </a>
+            </li>
+
+        </ul>
+
+    </aside>
+
+
+    <!-- ================= MAIN CONTENT ================= -->
+
+    <main class="main-content">
+
+        <!-- TOP BAR -->
+
+        <div class="top-bar">
+
+            <div class="page-title">
+                <h1 id="pageTitle">Dashboard</h1>
+                <p id="pageSubtitle">Welcome back, {{ request.user.username }}!</p>
+            </div>
+
+
+            <!-- USER PROFILE MENU -->
+
+            <div class="user-menu">
+
+                <button class="profile-btn" onclick="toggleProfileMenu()">
+                    👤 {{ request.user.username }} ▾
+                </button>
+
+                <div class="profile-dropdown" id="profileDropdown">
+
+                    <button onclick="showProfile()">
+                        👤 View Profile
+                    </button>
+
+                    <a href="{% url 'logout' %}" class="logout-link">
+                        🚪 Logout
+                    </a>
+
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <!-- ================= DASHBOARD ================= -->
+
+        <section id="dashboard" class="content-section active-section">
+
+            <div class="stats-grid">
+
+                <div class="stat-card">
+                    <h3>Total Customers</h3>
+                    <div class="number">0</div>
+                </div>
+
+                <div class="stat-card">
+                    <h3>Active Subscriptions</h3>
+                    <div class="number">0</div>
+                </div>
+
+                <div class="stat-card">
+                    <h3>Monthly Revenue</h3>
+                    <div class="number">₹0</div>
+                </div>
+
+                <div class="stat-card">
+                    <h3>Outstanding</h3>
+                    <div class="number">₹0</div>
+                </div>
+
+            </div>
+
+
+            <div class="dashboard-grid">
+
+                <div class="box">
+
+                    <h2>Revenue Overview</h2>
+
+                    <div class="revenue-stats">
+
+                        <div class="small-card">
+                            <h4>Payments Received</h4>
+                            <p>₹0</p>
+                        </div>
+
+                        <div class="small-card">
+                            <h4>Total Invoices</h4>
+                            <p>0</p>
+                        </div>
+
+                        <div class="small-card">
+                            <h4>Outstanding</h4>
+                            <p>₹0</p>
+                        </div>
+
+                    </div>
+
+                </div>
+
+
+                <div class="box">
+
+                    <h2>Recent Activity</h2>
+
+                    <p>No recent activity yet.</p>
+
+                </div>
+
+            </div>
+
+        </section>
+
+
+        <!-- ================= CUSTOMERS ================= -->
+
+        <section id="customers" class="content-section">
+
+            <div class="section-card">
+
+                <h2>Customers</h2>
+                <p>Manage all your customers here.</p>
+
+                <button class="primary-btn">+ Add Customer</button>
+
+            </div>
+
+        </section>
+
+
+        <!-- ================= PRODUCTS ================= -->
+
+        <section id="products" class="content-section">
+
+            <div class="section-card">
+
+                <h2>Products</h2>
+                <p>Manage your products and services.</p>
+
+                <button class="primary-btn">+ Add Product</button>
+
+            </div>
+
+        </section>
+
+
+        <!-- ================= PLANS ================= -->
+
+        <section id="plans" class="content-section">
+
+            <div class="section-card">
+
+                <h2>Subscription Plans</h2>
+                <p>Create and manage subscription plans.</p>
+
+                <button class="primary-btn">+ Create Plan</button>
+
+            </div>
+
+        </section>
+
+
+        <!-- ================= QUOTATIONS ================= -->
+
+        <section id="quotations" class="content-section">
+
+            <div class="section-card">
+
+                <h2>Quotations</h2>
+                <p>Create and manage quotations.</p>
+
+                <button class="primary-btn">+ New Quotation</button>
+
+            </div>
+
+        </section>
+
+
+        <!-- ================= SUBSCRIPTIONS ================= -->
+
+        <section id="subscriptions" class="content-section">
+
+            <div class="section-card">
+
+                <h2>Subscriptions</h2>
+                <p>Manage active customer subscriptions.</p>
+
+                <button class="primary-btn">+ Add Subscription</button>
+
+            </div>
+
+        </section>
+
+
+        <!-- ================= INVOICES ================= -->
+
+        <section id="invoices" class="content-section">
+
+            <div class="section-card">
+
+                <h2>Invoices</h2>
+                <p>Create and manage invoices.</p>
+
+                <button class="primary-btn">+ Create Invoice</button>
+
+            </div>
+
+        </section>
+
+
+        <!-- ================= PAYMENTS ================= -->
+
+        <section id="payments" class="content-section">
+
+            <div class="section-card">
+
+                <h2>Payments</h2>
+                <p>Track and manage customer payments.</p>
+
+                <button class="primary-btn">+ Record Payment</button>
+
+            </div>
+
+        </section>
+
+
+        <!-- ================= DISCOUNTS ================= -->
+
+        <section id="discounts" class="content-section">
+
+            <div class="section-card">
+
+                <h2>Discounts</h2>
+                <p>Create discount codes and offers.</p>
+
+                <button class="primary-btn">+ Add Discount</button>
+
+            </div>
+
+        </section>
+
+
+        <!-- ================= TAXES ================= -->
+
+        <section id="taxes" class="content-section">
+
+            <div class="section-card">
+
+                <h2>Taxes</h2>
+                <p>Configure your tax rates.</p>
+
+                <button class="primary-btn">+ Add Tax</button>
+
+            </div>
+
+        </section>
+
+
+        <!-- ================= REPORTS ================= -->
+
+        <section id="reports" class="content-section">
+
+            <div class="section-card">
+
+                <h2>Reports</h2>
+                <p>View your business reports and analytics.</p>
+
+                <button class="primary-btn">Generate Report</button>
+
+            </div>
+
+        </section>
+
+
+        <!-- ================= SETTINGS ================= -->
+
+        <section id="settings" class="content-section">
+
+            <div class="section-card">
+
+                <h2>Settings</h2>
+                <p>Manage your Brightloop account settings.</p>
+
+                <button class="primary-btn">Save Settings</button>
+
+            </div>
+
+        </section>
+
+    </main>
+
+</div>
+
+
+<!-- ================= PROFILE MODAL ================= -->
+
+<div class="modal" id="profileModal">
+
+    <div class="modal-content">
+
+        <span class="close-btn" onclick="closeProfile()">&times;</span>
+
+        <div class="profile-avatar">
+            👤
+        </div>
+
+        <h2>{{ request.user.username }}</h2>
+
+        <div class="profile-info">
+
+            <p>
+                <strong>Username:</strong>
+                {{ request.user.username }}
+            </p>
+
+            <p>
+                <strong>Email:</strong>
+                {{ request.user.email|default:"Not provided" }}
+            </p>
+
+            <p>
+                <strong>Account:</strong>
+                Active
+            </p>
+
+        </div>
+
+    </div>
+
+</div>
+
+
+<!-- ================= JAVASCRIPT ================= -->
+
+<script>
+
+    /* =========================
+       SECTION SWITCHING
+    ========================== */
+
+    function showSection(sectionId, clickedElement) {
+
+        const sections =
+            document.querySelectorAll(".content-section");
+
+        sections.forEach(function(section) {
+
+            section.classList.remove("active-section");
+
+        });
+
+        document
+            .getElementById(sectionId)
+            .classList
+            .add("active-section");
+
+
+        const menuLinks =
+            document.querySelectorAll(".menu-link");
+
+        menuLinks.forEach(function(link) {
+
+            link.classList.remove("active");
+
+        });
+
+        clickedElement.classList.add("active");
+
+
+        document
+            .getElementById("pageTitle")
+            .innerText = clickedElement.innerText.trim();
+
+        document
+            .getElementById("pageSubtitle")
+            .innerText =
+            "Manage your " +
+            clickedElement.innerText.trim().toLowerCase() +
+            " here.";
+
+    }
+
+
+    /* =========================
+       PROFILE DROPDOWN
+    ========================== */
+
+    function toggleProfileMenu() {
+
+        document
+            .getElementById("profileDropdown")
+            .classList
+            .toggle("show");
+
+    }
+
+
+    /* =========================
+       PROFILE MODAL
+    ========================== */
+
+    function showProfile() {
+
+        document
+            .getElementById("profileDropdown")
+            .classList
+            .remove("show");
+
+        document
+            .getElementById("profileModal")
+            .classList
+            .add("show-modal");
+
+    }
+
+
+    function closeProfile() {
+
+        document
+            .getElementById("profileModal")
+            .classList
+            .remove("show-modal");
+
+    }
+
+
+    /* =========================
+       CLOSE DROPDOWN OUTSIDE
+    ========================== */
+
+    window.addEventListener("click", function(event) {
+
+        if (!event.target.closest(".user-menu")) {
+
+            const dropdown =
+                document.getElementById("profileDropdown");
+
+            if (dropdown) {
+
+                dropdown.classList.remove("show");
+
+            }
+
+        }
+
+    });
+
+
+    /* =========================
+       CLOSE MODAL OUTSIDE
+    ========================== */
+
+    window.addEventListener("click", function(event) {
+
+        const modal =
+            document.getElementById("profileModal");
+
+        if (event.target === modal) {
+
+            closeProfile();
+
+        }
+
+    });
+
+</script>
+
+</body>
+</html>
+```
