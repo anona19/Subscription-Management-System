@@ -1,7 +1,11 @@
 from django.shortcuts import render, redirect
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
+<<<<<<< HEAD
 from .models import Customer
+=======
+
+>>>>>>> cdb47b06423e19b6b46dde1b09c4730834ea8bdc
 
 def login_view(request):
     if request.user.is_authenticated:
@@ -35,11 +39,15 @@ def dashboard(request):
 
 @login_required
 def customers(request):
+<<<<<<< HEAD
     customers = Customer.objects.all().order_by("-created_at")
 
     return render(request, "customers.html", {
         "customers": customers
     })
+=======
+    return render(request, "customers.html")
+>>>>>>> cdb47b06423e19b6b46dde1b09c4730834ea8bdc
 
 
 @login_required
